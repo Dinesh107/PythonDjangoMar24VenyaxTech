@@ -19,6 +19,7 @@
             {% for space in spaces %}
               
                 <div>
+                    <a href="{% url 'update-space' space.id %}">Edit</a>
                     <span>@{{space.host.username}}</span>
                     <h4>{{space.id}} --- <a href="{% url 'space' space.id %}">{{space.name}}</a></h4>
                     <small>{{space.heading.name}}</small>
