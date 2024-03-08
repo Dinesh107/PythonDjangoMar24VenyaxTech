@@ -8,5 +8,6 @@ urlpatterns = [
      path('takingPhoto/', views.takingPhoto, name="takingPhoto"),
 
      path('create-space/', views.createSpace, name="create-space"),
+     path('update-space/<str:pk>/', views.updateSpace, name="update-space"),
 
 ]

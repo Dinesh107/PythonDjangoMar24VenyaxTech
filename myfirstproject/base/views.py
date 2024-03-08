@@ -41,3 +41,18 @@ def createSpace(request):
     context = {'form': form}
     return render(request, 'base/space_form.html', context)
  
+
+
+def updateSpace(request, pk):
+        space = Space.objects.get(id=pk)
+        form = SpaceForm(instance=space)
+
+        if request.method == 'POST':
+            form = SpaceForm(request.POST, instance=space)
+            if form.is_valid():
+                form.save()
+                return redirect('home')
+
+        context = {'form': form}
+        return render(request, 'base/space_form.html', context)
+
