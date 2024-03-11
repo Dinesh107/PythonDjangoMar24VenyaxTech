@@ -56,3 +56,9 @@ def updateSpace(request, pk):
         context = {'form': form}
         return render(request, 'base/space_form.html', context)
 
+def deleteSpace(request, pk):
+    space = Space.objects.get(id=pk)
+    if request.method == 'POST':
+        space.delete()
+        return redirect('home')
+    return render(request, 'base/delete.html', {'obj':space})

@@ -20,6 +20,7 @@
               
                 <div>
                     <a href="{% url 'update-space' space.id %}">Edit</a>
+                    <a href="{% url 'delete-space' space.id %}">Delete</a>
                     <span>@{{space.host.username}}</span>
                     <h4>{{space.id}} --- <a href="{% url 'space' space.id %}">{{space.name}}</a></h4>
                     <small>{{space.heading.name}}</small>
