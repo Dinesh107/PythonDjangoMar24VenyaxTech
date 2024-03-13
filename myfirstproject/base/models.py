@@ -10,6 +10,7 @@ class Heading(models.Model):
 
     def __str__(self):
         return self.name
+        
 
 class Space(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

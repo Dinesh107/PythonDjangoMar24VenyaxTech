@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Space
+from .models import Space, Heading
 from .forms import SpaceForm
 
 # Create your views here.
@@ -15,10 +15,16 @@ from .forms import SpaceForm
 
 
 def home(request):
- spaces = Space.objects.all()
- return render(request, 'base/home.html', {'spaces':spaces})
 
- 
+ q = request.GET.get('q') if request.GET.get('q') != None else ''
+
+ spaces = Space.objects.filter(heading__name__icontains=q)
+ headings = Heading.objects.all()
+
+ context = {'spaces': spaces, 'headings': headings}
+ return render(request, 'base/home.html', context)
+
+
 def space(request, pk):   
  space = Space.objects.get(id=pk) 
  context = {'space': space}        
@@ -42,7 +48,6 @@ def createSpace(request):
     return render(request, 'base/space_form.html', context)
  
 
-
 def updateSpace(request, pk):
         space = Space.objects.get(id=pk)
         form = SpaceForm(instance=space)
@@ -55,6 +60,7 @@ def updateSpace(request, pk):
 
         context = {'form': form}
         return render(request, 'base/space_form.html', context)
+
 
 def deleteSpace(request, pk):
     space = Space.objects.get(id=pk)
