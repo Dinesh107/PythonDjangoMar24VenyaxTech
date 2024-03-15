@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.db.models import Q
 from .models import Space, Heading
 from .forms import SpaceForm
 
@@ -14,14 +15,29 @@ from .forms import SpaceForm
 # ]
 
 
+def loginPage(request):
+    context = {}
+    return render(request, 'base/login_register.html', context)
+
+
+
+
+
 def home(request):
 
  q = request.GET.get('q') if request.GET.get('q') != None else ''
 
- spaces = Space.objects.filter(heading__name__icontains=q)
- headings = Heading.objects.all()
+ spaces = Space.objects.filter(
+    Q(heading__name__icontains=q) | 
+    Q(name__icontains=q) | 
+    Q(description__icontains=q) 
+    )
 
- context = {'spaces': spaces, 'headings': headings}
+
+ headings = Heading.objects.all()
+ space_count = spaces.count()
+
+ context = {'spaces': spaces, 'headings': headings, 'space_count': space_count}
  return render(request, 'base/home.html', context)
 
 
