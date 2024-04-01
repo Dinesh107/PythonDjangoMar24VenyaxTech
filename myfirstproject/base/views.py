@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -41,8 +42,9 @@ def loginPage(request):
     context = {}
     return render(request, 'base/login_register.html', context)
 
-
-
+def logoutUser(request):
+    logout(request)
+    return redirect('home')
 
 
 def home(request):
@@ -72,7 +74,7 @@ def space(request, pk):
 def takingPhoto(request):
     return render(request, 'takingPhoto.html')
 
-
+@login_required(login_url='login')
 def createSpace(request): 
     form = SpaceForm()
 
@@ -85,10 +87,13 @@ def createSpace(request):
     context = {'form': form}
     return render(request, 'base/space_form.html', context)
  
-
+@login_required(login_url='login')
 def updateSpace(request, pk):
         space = Space.objects.get(id=pk)
         form = SpaceForm(instance=space)
+
+        if request.user != space.host:
+            return HttpResponse('You are not allowed here!!!')
 
         if request.method == 'POST':
             form = SpaceForm(request.POST, instance=space)
@@ -99,9 +104,13 @@ def updateSpace(request, pk):
         context = {'form': form}
         return render(request, 'base/space_form.html', context)
 
-
+@login_required(login_url='login')
 def deleteSpace(request, pk):
     space = Space.objects.get(id=pk)
+
+    if request.user != space.host:
+            return HttpResponse('You are not allowed here!!!')
+
     if request.method == 'POST':
         space.delete()
         return redirect('home')
