@@ -1,0 +1,13 @@
+<h3>Browse Headings</h3>
+<hr />
+
+<div>
+  <h4>{{space_count}} space available</h4>
+  <a href="{% url 'home' %}">All</a>
+</div>
+
+{% for heading in headings %}
+<div>
+  <a href="{% url 'home' %}?q={{heading.name}}">{{heading.name}}</a>
+</div>
+{% endfor %}
