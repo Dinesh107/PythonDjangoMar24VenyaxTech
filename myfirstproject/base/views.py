@@ -100,6 +100,16 @@ def space(request, pk):
  return render(request, 'base/space.html', context)
 
 
+
+def userProfile(request, pk):
+    user = User.objects.get(id=pk)
+    spaces = user.space_set.all()
+    space_messages = user.communicate_set.all()
+    headings = Heading.objects.all()
+    context = {'user': user, 'spaces': spaces, 'space_messages': space_messages, 'headings': headings}
+    return render(request, 'base/profile.html', context)
+
+
 def takingPhoto(request):
     return render(request, 'takingPhoto.html')
 

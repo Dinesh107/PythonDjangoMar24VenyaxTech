@@ -6,7 +6,8 @@
     <a href="{% url 'update-space' space.id %}">Edit</a>
     <a href="{% url 'delete-space' space.id %}">Delete</a>
     {% endif %}
-    <span>@{{space.host.username}}</span>
+    
+    <a href="{% url 'user-profile' space.host.id %}" >@{{space.host.username}}</a>
     <h4>
       {{space.id}} ---
       <a href="{% url 'space' space.id %}">{{space.name}}</a>
