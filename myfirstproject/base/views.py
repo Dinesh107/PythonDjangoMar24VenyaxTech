@@ -120,9 +120,10 @@ def createSpace(request):
     if request.method == 'POST':
        form = SpaceForm(request.POST)
        if form.is_valid():
-        form.save()
+        space = form.save(commit=False)
+        space.host = request.user
         return redirect('home')
-
+        space.save()
     context = {'form': form}
     return render(request, 'base/space_form.html', context)
  
