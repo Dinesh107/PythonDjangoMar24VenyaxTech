@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .models import Space, Heading
+from .models import Space, Heading, Communicate
 from .forms import SpaceForm
 
 # Create your views here.
@@ -76,15 +76,38 @@ def home(request):
 
  headings = Heading.objects.all()
  space_count = spaces.count()
-
- context = {'spaces': spaces, 'headings': headings, 'space_count': space_count}
+ space_messages = Communicate.objects.filter(Q(space__heading__name__icontains=q))
+ 
+ context = {'spaces': spaces, 'headings': headings, 'space_count': space_count, 'space_messages': space_messages}
  return render(request, 'base/home.html', context)
 
 
 def space(request, pk):   
- space = Space.objects.get(id=pk) 
- context = {'space': space}        
+ space = Space.objects.get(id=pk)
+ space_messages = space.communicate_set.all() # we can query the child object of a specific space 
+ participants = space.participants.all()
+
+ if request.method == 'POST':
+    message = Communicate.objects.create(
+        user = request.user,
+        space = space,
+        body = request.POST.get('body'),
+    )
+    space.participants.add(request.user)
+    return redirect('space', pk=space.id)
+
+ context = {'space': space, 'space_messages': space_messages, 'participants': participants}        
  return render(request, 'base/space.html', context)
+
+
+
+def userProfile(request, pk):
+    user = User.objects.get(id=pk)
+    spaces = user.space_set.all()
+    space_messages = user.communicate_set.all()
+    headings = Heading.objects.all()
+    context = {'user': user, 'spaces': spaces, 'space_messages': space_messages, 'headings': headings}
+    return render(request, 'base/profile.html', context)
 
 
 def takingPhoto(request):
@@ -97,9 +120,10 @@ def createSpace(request):
     if request.method == 'POST':
        form = SpaceForm(request.POST)
        if form.is_valid():
-        form.save()
+        space = form.save(commit=False)
+        space.host = request.user
         return redirect('home')
-
+        space.save()
     context = {'form': form}
     return render(request, 'base/space_form.html', context)
  
@@ -131,3 +155,18 @@ def deleteSpace(request, pk):
         space.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj':space})
+
+
+
+@login_required(login_url='login')
+def deleteMessage(request, pk):
+    message = Communicate.objects.get(id=pk)
+
+    if request.user != message.user:
+            return HttpResponse('You are not allowed here!!!')
+
+    if request.method == 'POST':
+        message.delete()
+        return redirect('home')
+    return render(request, 'base/delete.html', {'obj':message})
+

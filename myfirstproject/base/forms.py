@@ -6,3 +6,4 @@ class SpaceForm(ModelForm):
     class Meta:
         model = Space
         fields = '__all__'
+        exclude = ['host', 'participants']
