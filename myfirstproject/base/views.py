@@ -116,32 +116,41 @@ def takingPhoto(request):
 @login_required(login_url='login')
 def createSpace(request): 
     form = SpaceForm()
-
+    headings = Heading.objects.all()
     if request.method == 'POST':
-       form = SpaceForm(request.POST)
-       if form.is_valid():
-        space = form.save(commit=False)
-        space.host = request.user
+        heading_name = request.POST.get('heading')
+        heading, created = Heading.objects.get_or_create(name = heading_name)
+
+        Space.objects.create(
+            host=request.user,
+            heading = heading,
+            name = request.POST.get('name'),
+            description = request.POST.get('description'),  
+        )
         return redirect('home')
-        space.save()
-    context = {'form': form}
+        
+    context = {'form': form, 'headings': headings}
     return render(request, 'base/space_form.html', context)
  
 @login_required(login_url='login')
 def updateSpace(request, pk):
         space = Space.objects.get(id=pk)
         form = SpaceForm(instance=space)
+        headings = Heading.objects.all()
 
         if request.user != space.host:
             return HttpResponse('You are not allowed here!!!')
 
         if request.method == 'POST':
-            form = SpaceForm(request.POST, instance=space)
-            if form.is_valid():
-                form.save()
-                return redirect('home')
+            heading_name = request.POST.get('heading')
+            heading, created = Heading.objects.get_or_create(name = heading_name)
+            space.name = request.POST.get('name')
+            space.heading = heading
+            space.description = request.POST.get('description')
+            space.save()
+            return redirect('home')
 
-        context = {'form': form}
+        context = {'form': form, 'headings': headings, 'space': space}
         return render(request, 'base/space_form.html', context)
 
 @login_required(login_url='login')
